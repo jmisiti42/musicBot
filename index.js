@@ -7,7 +7,7 @@ const app = express();
 app.use(bodyParser.json());
 
 const findSimilar = (person, res) => {
-  request(`http://ws.audioscrobbler.com/2.0/?limit=5&method=artist.getsimilar&autocorrect=0&artist=${person}&api_key=2c797a114ef97a8abc511c695e29341c&format=json`, function (error, response, body) {
+  request(`http://ws.audioscrobbler.com/2.0/?limit=5&method=artist.getsimilar&autocorrect=0&artist=${person}&api_key=${config.LAST_FM_API_KEY}&format=json`, function (error, response, body) {
     if (error) {
       console.log('error:', error); // Print the error if one occurred
     } else {
