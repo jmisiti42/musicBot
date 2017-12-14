@@ -1,0 +1,26 @@
+{
+  "name": "richard",
+  "version": "1.0.0",
+  "description": "A musical bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmisiti42/musicBot.git"
+  },
+  "author": "jmisiti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jmisiti42/musicBot/issues"
+  },
+  "homepage": "https://github.com/jmisiti42/musicBot#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "nodemon": "^1.12.7",
+    "recastai": "^3.7.0",
+    "request": "^2.83.0"
+  }
+}
