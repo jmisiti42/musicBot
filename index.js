@@ -1,55 +1,39 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const request = require('request');
-const config = require('./config.js');
+const config = require('./config');
+const facebookApi = require('./controllers/facebookApi');
 const app = express();
-
 app.use(bodyParser.json());
 
-const findSimilar = (person, res) => {
-  request(`http://ws.audioscrobbler.com/2.0/?limit=5&method=artist.getsimilar&autocorrect=0&artist=${person}&api_key=${config.LAST_FM_API_KEY}&format=json`, function (error, response, body) {
-    if (error) {
-      console.log('error:', error); // Print the error if one occurred
-    } else {
-      const result = JSON.parse(body);
-      const similars = result.similarartists;
-      var cards = null;
-      if (similars) {
-        cards = similars.artist.map(e => ({
-          title: e.title || e.name,
-          imageUrl: e.image[2]['#text'],
-          buttons: [{
-            type: 'web_url',
-            value: e.url,
-            title: 'Voir l\'artiste',
-          }],
-        }));
+app.post('/webhook', (req, res) => {
+  let body = req.body;
+  if (body.object === 'page') {
+    body.entry.forEach(function(entry) {
+      let webhookEvent = entry.messaging[0];
+      let sender_psid = webhookEvent.sender.id;
+      if (webhookEvent.message) {
+        facebookApi.handleMessage(sender_psid, webhookEvent.message.text);
       }
-      sendResult(cards, res);
-    }
-  });
-};
-
-const sendResult = (cards, res) => {
-  if (!cards || cards.length === 0) {
-    res.json({ replies: [{type: 'text', content: 'Oops, je n\'ai trouvé aucun résultats !' }]});
-  } else {
-    res.json({
-      replies: [{type: 'text', content: 'Voilà ce que j\'ai trouvé :' }, {
-        type: 'carouselle',
-        content: cards
-      }]
     });
+    res.status(200).send('EVENT_RECEIVED');
+  } else {
+    res.sendStatus(404);
   }
-};
-
-app.post('/errors', (req, res) => {
-   console.error(req.body);
-   res.sendStatus(200);
 });
 
-app.post('/find', (req, res) => {
-  findSimilar(req.body.conversation.memory.person.raw, res);
+app.get('/webhook', (req, res) => {
+  // Parse the query params
+  let mode = req.query['hub.mode'];
+  let token = req.query['hub.verify_token'];
+  let challenge = req.query['hub.challenge'];
+
+  if (mode && token) {
+    if (mode === 'subscribe' && token === config.VERIFY_TOKEN) {
+      res.status(200).send('yo');
+    } else {
+      res.sendStatus(403);
+    }
+  }
 });
 
 app.listen(config.PORT, () => console.log(`App started on port ${config.PORT}`));
